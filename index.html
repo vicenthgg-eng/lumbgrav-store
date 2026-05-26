@@ -2508,7 +2508,7 @@ body.has-cursor * { cursor: none !important; }
       <span class="cart-total-label">Total</span>
       <span class="cart-total-price" id="cartTotal">0,00 €</span>
     </div>
-    <button class="btn-checkout">Finalizar compra</button>
+    <button class="btn-checkout" onclick="goToShopifyCheckout()">Finalizar compra</button>
     <p class="cart-shipping-note">Envío gratuito incluido en todos los pedidos</p>
   </div>
 </aside>
@@ -2617,15 +2617,43 @@ function closeCart() {
 
 document.getElementById('cartTrigger').addEventListener('click', openCart);
 
+const SHOPIFY_VARIANTS = {
+  'Arco Nobile':    53837591511379,
+  'Linea Vértice':  53837592068435,
+  'Onda Aurea':     53837592101203,
+  'Punto Silex':    53837592133971,
+  'Curva Sombra':   53837593477459,
+  'Velo Nera':      53837593510227,
+  'Halo Pleno':     53837594853715,
+  'Orbita Aurea':   53837594886483,
+  'Halo Doppio':    53837594919251,
+  'Luna Astrale':   53837594952019,
+  'Taglio Sombra':  53837595017555
+};
+
 function addToCart(name, price, img) {
   const existing = cart.find(i => i.name === name);
   if (existing) {
     existing.qty += 1;
   } else {
-    cart.push({ name, price, img, qty: 1 });
+    const variantId = SHOPIFY_VARIANTS[name] || null;
+    cart.push({ name, price, img, qty: 1, variantId });
   }
   renderCart();
   openCart();
+}
+
+function goToShopifyCheckout() {
+  if (cart.length === 0) return;
+  const items = cart
+    .filter(i => i.variantId)
+    .map(i => `${i.variantId}:${i.qty}`)
+    .join(',');
+  if (items) {
+    window.location.href = `https://inmovaesthetics.com/cart/${items}`;
+  } else {
+    window.location.href = 'https://inmovaesthetics.com/collections/all';
+  }
 }
 
 function removeFromCart(name) {
