@@ -2566,20 +2566,7 @@ window.addEventListener('scroll', () => {
   header.classList.toggle('scrolled', window.scrollY > 60);
 }, { passive: true });
 
-/* ── HERO PARALLAX ── */
-const heroWrap = document.getElementById('heroVideoWrap');
-const heroLogoDrop = document.getElementById('heroLogoDrop');
-const heroHeight = () => window.innerHeight * 1.2;
-
-window.addEventListener('scroll', () => {
-  const y = window.scrollY;
-  if (y < heroHeight()) {
-    /* fondo: se desplaza más lento que el scroll → efecto profundidad */
-    heroWrap.style.transform = `translateY(${y * 0.25}px)`;
-    /* logo gota: contra-parallax suave → flota mientras el usuario baja */
-    heroLogoDrop.style.transform = `translateY(${-y * 0.14}px)`;
-  }
-}, { passive: true });
+/* ── HERO PARALLAX — gestionado por GSAP (ver bloque al final) ── */
 
 /* ── VIDEO FALLBACK (mobile) ── */
 (function() {
@@ -2875,6 +2862,227 @@ function closePolicy() {
 <div class="policy-overlay" id="policyOverlay" onclick="if(event.target===this)closePolicy()">
   <div class="policy-modal" id="policyContent"></div>
 </div>
+
+<!-- ═══════════════════════════════════
+     GSAP + SCROLLTRIGGER PARALLAX
+══════════════════════════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(function() {
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ── Reducir movimiento en dispositivos que lo piden ── */
+  const noMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (noMotion) return;
+
+  /* ─────────────────────────────────────
+     1. HERO — video parallax suave
+  ───────────────────────────────────── */
+  const heroWrap    = document.getElementById('heroVideoWrap');
+  const heroLogo    = document.getElementById('heroLogoDrop');
+  const heroContent = document.querySelector('.hero-content');
+
+  if (heroWrap) {
+    gsap.to(heroWrap, {
+      y: '28%',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.hero',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: 1.2
+      }
+    });
+  }
+
+  if (heroLogo) {
+    gsap.to(heroLogo, {
+      y: '-18%',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.hero',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: 1.5
+      }
+    });
+  }
+
+  if (heroContent) {
+    gsap.to(heroContent, {
+      y: '12%',
+      opacity: 0.4,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.hero',
+        start: 'top top',
+        end: '60% top',
+        scrub: 1
+      }
+    });
+  }
+
+  /* ─────────────────────────────────────
+     2. CATEGORY CARDS — imagen se expande
+        suavemente al entrar en viewport
+  ───────────────────────────────────── */
+  document.querySelectorAll('.category-card').forEach(function(card) {
+    var img = card.querySelector('img');
+    if (!img) return;
+
+    /* Desactivar CSS transition para que GSAP tenga control total */
+    img.style.transition = 'none';
+
+    gsap.fromTo(img,
+      { scale: 1.18 },
+      {
+        scale: 1,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: card,
+          start: 'top bottom',
+          end: 'bottom 20%',
+          scrub: 1.5
+        }
+      }
+    );
+  });
+
+  /* ─────────────────────────────────────
+     3. BRAND STATEMENT — fondo parallax
+  ───────────────────────────────────── */
+  var brandBg = document.querySelector('.brand-statement-bg');
+  if (brandBg) {
+    gsap.to(brandBg, {
+      y: '22%',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.brand-statement',
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 1.2
+      }
+    });
+  }
+
+  /* ─────────────────────────────────────
+     4. BESTSELLER — imagen expand + parallax
+  ───────────────────────────────────── */
+  var bestImg = document.querySelector('.bestseller-image img');
+  if (bestImg) {
+    bestImg.style.transition = 'none';
+
+    gsap.fromTo(bestImg,
+      { scale: 1.12 },
+      {
+        scale: 1,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.bestseller-section',
+          start: 'top bottom',
+          end: 'center 30%',
+          scrub: 1.8
+        }
+      }
+    );
+  }
+
+  /* ─────────────────────────────────────
+     5. SECCIONES — títulos y headers
+        aparecen con drift suave hacia arriba
+  ───────────────────────────────────── */
+  gsap.utils.toArray('.section-title').forEach(function(el) {
+    gsap.fromTo(el,
+      { y: 48, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 1.1,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 88%',
+          toggleActions: 'play none none none'
+        }
+      }
+    );
+  });
+
+  /* ─────────────────────────────────────
+     6. PRODUCT CARDS — entrada escalonada
+        + imagen expand al hacer scroll
+  ───────────────────────────────────── */
+  var productCards = document.querySelectorAll('.product-card');
+
+  productCards.forEach(function(card, i) {
+    /* entrada escalonada de la card */
+    gsap.fromTo(card,
+      { y: 60, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.9,
+        ease: 'power2.out',
+        delay: (i % 4) * 0.08,
+        scrollTrigger: {
+          trigger: card,
+          start: 'top 90%',
+          toggleActions: 'play none none none'
+        }
+      }
+    );
+
+    /* expand de imagen dentro de la card */
+    var packshot = card.querySelector('.img-packshot');
+    if (packshot) {
+      packshot.style.transition = 'none';
+      gsap.fromTo(packshot,
+        { scale: 1.10 },
+        {
+          scale: 1,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: card,
+            start: 'top bottom',
+            end: 'center 40%',
+            scrub: 2
+          }
+        }
+      );
+    }
+  });
+
+  /* ─────────────────────────────────────
+     7. PROOF / SOCIAL — quote aparece
+  ───────────────────────────────────── */
+  var proofQuote = document.querySelector('.proof-quote');
+  if (proofQuote) {
+    gsap.fromTo(proofQuote,
+      { y: 50, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 1.4,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: proofQuote,
+          start: 'top 82%',
+          toggleActions: 'play none none none'
+        }
+      }
+    );
+  }
+
+  /* Refresh tras carga completa de imágenes */
+  window.addEventListener('load', function() {
+    ScrollTrigger.refresh();
+  });
+
+})();
+</script>
 
 </body>
 </html>
