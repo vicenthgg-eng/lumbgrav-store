@@ -60,6 +60,8 @@ body {
 img { display: block; max-width: 100%; }
 a { color: inherit; text-decoration: none; }
 button { cursor: pointer; background: none; border: none; color: inherit; font-family: inherit; }
+.filter-btn { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; padding: 8px 18px; border: 1px solid rgba(244,240,232,0.2); color: rgba(244,240,232,0.5); border-radius: 2px; transition: all 0.25s; cursor: pointer; background: none; }
+.filter-btn:hover, .filter-btn.active { border-color: var(--champagne); color: var(--champagne); }
 
 /* ─────────────────────────────────────────────
    TYPOGRAPHY UTILITIES
@@ -1812,7 +1814,7 @@ body.has-cursor * { cursor: none !important; }
   </div>
 
   <div class="categories-grid">
-    <div class="category-card reveal reveal-delay-1">
+    <div class="category-card reveal reveal-delay-1" onclick="filterProducts('aplique')" style="cursor:pointer;">
       <img src="producto5.png" alt="Apliques de pared" loading="lazy">
       <div class="category-overlay">
         <span class="category-label">01 — Apliques</span>
@@ -1821,7 +1823,7 @@ body.has-cursor * { cursor: none !important; }
         <span class="category-cta">Explorar</span>
       </div>
     </div>
-    <div class="category-card reveal reveal-delay-2">
+    <div class="category-card reveal reveal-delay-2" onclick="filterProducts('colgante')" style="cursor:pointer;">
       <img src="producto3.png" alt="Lámparas colgantes" loading="lazy">
       <div class="category-overlay">
         <span class="category-label">02 — Colgantes</span>
@@ -1830,7 +1832,7 @@ body.has-cursor * { cursor: none !important; }
         <span class="category-cta">Explorar</span>
       </div>
     </div>
-    <div class="category-card reveal reveal-delay-3">
+    <div class="category-card reveal reveal-delay-3" onclick="filterProducts('techo')" style="cursor:pointer;">
       <img src="producto7.png" alt="Lámparas de techo" loading="lazy">
       <div class="category-overlay">
         <span class="category-label">03 — Techo</span>
@@ -1969,12 +1971,18 @@ body.has-cursor * { cursor: none !important; }
       <p class="t-label" style="margin-bottom:12px;">Catálogo completo</p>
       <h2 class="section-title">Cada pieza,<br><em>una decisión.</em></h2>
     </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;" id="filterBtns">
+      <button onclick="filterProducts('todos')" class="filter-btn active" data-filter="todos">Todos</button>
+      <button onclick="filterProducts('aplique')" class="filter-btn" data-filter="aplique">Apliques</button>
+      <button onclick="filterProducts('colgante')" class="filter-btn" data-filter="colgante">Colgantes</button>
+      <button onclick="filterProducts('techo')" class="filter-btn" data-filter="techo">Techo</button>
+    </div>
   </div>
 
   <div class="product-grid">
 
     <!-- Producto 1 -->
-    <div class="product-card reveal">
+    <div class="product-card reveal" data-type="aplique">
       <div class="product-image-wrap">
         <img class="img-packshot" src="Producto%201.png" alt="Arco Nobile" loading="lazy">
         <img class="img-lifestyle" src="producto1..png" alt="Arco Nobile en espacio" loading="lazy">
@@ -1991,7 +1999,7 @@ body.has-cursor * { cursor: none !important; }
     </div>
 
     <!-- Producto 2 -->
-    <div class="product-card reveal reveal-delay-1">
+    <div class="product-card reveal reveal-delay-1" data-type="aplique">
       <div class="product-image-wrap">
         <img class="img-packshot" src="producto%202.png" alt="Linea Vértice" loading="lazy">
         <img class="img-lifestyle" src="producto2.png" alt="Linea Vértice en espacio" loading="lazy">
@@ -2008,7 +2016,7 @@ body.has-cursor * { cursor: none !important; }
     </div>
 
     <!-- Producto 3 -->
-    <div class="product-card reveal reveal-delay-2">
+    <div class="product-card reveal reveal-delay-2" data-type="colgante">
       <div class="product-image-wrap">
         <img class="img-packshot" src="producto%203.png" alt="Onda Aurea" loading="lazy">
         <img class="img-lifestyle" src="producto3.png" alt="Onda Aurea en espacio" loading="lazy">
@@ -2025,7 +2033,7 @@ body.has-cursor * { cursor: none !important; }
     </div>
 
     <!-- Producto 4 -->
-    <div class="product-card reveal reveal-delay-3">
+    <div class="product-card reveal reveal-delay-3" data-type="colgante">
       <div class="product-image-wrap">
         <img class="img-packshot" src="producto%204.png" alt="Punto Silex" loading="lazy">
         <img class="img-lifestyle" src="producto4.png" alt="Punto Silex en espacio" loading="lazy">
@@ -2042,7 +2050,7 @@ body.has-cursor * { cursor: none !important; }
     </div>
 
     <!-- Producto 5 -->
-    <div class="product-card reveal">
+    <div class="product-card reveal" data-type="aplique">
       <div class="product-image-wrap">
         <img class="img-packshot" src="producto%205.png" alt="Curva Sombra" loading="lazy">
         <img class="img-lifestyle" src="producto5.png" alt="Curva Sombra en espacio" loading="lazy">
@@ -2059,7 +2067,7 @@ body.has-cursor * { cursor: none !important; }
     </div>
 
     <!-- Producto 6 -->
-    <div class="product-card reveal reveal-delay-1">
+    <div class="product-card reveal reveal-delay-1" data-type="colgante">
       <div class="product-image-wrap">
         <img class="img-packshot" src="producto%206.png" alt="Velo Nera" loading="lazy">
         <img class="img-lifestyle" src="producto6.png" alt="Velo Nera en espacio" loading="lazy">
@@ -2076,7 +2084,7 @@ body.has-cursor * { cursor: none !important; }
     </div>
 
     <!-- Producto 7 -->
-    <div class="product-card reveal reveal-delay-2">
+    <div class="product-card reveal reveal-delay-2" data-type="techo">
       <div class="product-image-wrap">
         <img class="img-packshot" src="producto%207.png" alt="Halo Pleno" loading="lazy">
         <img class="img-lifestyle" src="producto7.png" alt="Halo Pleno en espacio" loading="lazy">
@@ -2093,7 +2101,7 @@ body.has-cursor * { cursor: none !important; }
     </div>
 
     <!-- Producto 8 -->
-    <div class="product-card reveal reveal-delay-3">
+    <div class="product-card reveal reveal-delay-3" data-type="colgante">
       <div class="product-image-wrap">
         <img class="img-packshot" src="producto%208.png" alt="Orbita Aurea" loading="lazy">
         <img class="img-lifestyle" src="producto8.png" alt="Orbita Aurea en espacio" loading="lazy">
@@ -2110,7 +2118,7 @@ body.has-cursor * { cursor: none !important; }
     </div>
 
     <!-- Producto 9 -->
-    <div class="product-card reveal">
+    <div class="product-card reveal" data-type="colgante">
       <div class="product-image-wrap">
         <img class="img-packshot" src="producto%209.png" alt="Halo Doppio" loading="lazy">
         <img class="img-lifestyle" src="producto9.png" alt="Halo Doppio en espacio" loading="lazy">
@@ -2127,7 +2135,7 @@ body.has-cursor * { cursor: none !important; }
     </div>
 
     <!-- Producto 10 -->
-    <div class="product-card reveal reveal-delay-1">
+    <div class="product-card reveal reveal-delay-1" data-type="colgante">
       <div class="product-image-wrap">
         <img class="img-packshot" src="producto%2010.png" alt="Luna Astrale" loading="lazy">
         <img class="img-lifestyle" src="producto10.png" alt="Luna Astrale en espacio" loading="lazy">
@@ -2144,7 +2152,7 @@ body.has-cursor * { cursor: none !important; }
     </div>
 
     <!-- Producto 11 -->
-    <div class="product-card reveal reveal-delay-2">
+    <div class="product-card reveal reveal-delay-2" data-type="aplique">
       <div class="product-image-wrap">
         <img class="img-packshot" src="producto%2011.png" alt="Taglio Sombra" loading="lazy">
         <img class="img-lifestyle" src="producto11.png" alt="Taglio Sombra en espacio" loading="lazy">
@@ -2630,6 +2638,21 @@ const SHOPIFY_VARIANTS = {
   'Luna Astrale':   53837594952019,
   'Taglio Sombra':  53837595017555
 };
+
+function filterProducts(type) {
+  const cards = document.querySelectorAll('.product-card[data-type]');
+  cards.forEach(card => {
+    if (type === 'todos' || card.dataset.type === type) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.filter === type);
+  });
+  document.getElementById('grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
 function addToCart(name, price, img) {
   const existing = cart.find(i => i.name === name);
