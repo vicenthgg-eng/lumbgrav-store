@@ -187,15 +187,12 @@ button { cursor: pointer; background: none; border: none; color: inherit; font-f
   z-index: 0;
   will-change: transform;
 }
-.hero-video-wrap video,
-.hero-video-wrap .hero-fallback {
+.hero-video-wrap img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
-}
-.hero-fallback {
-  display: none;
+  display: block;
 }
 .hero-overlay {
   position: absolute;
@@ -588,10 +585,25 @@ button { cursor: pointer; background: none; border: none; color: inherit; font-f
 /* ─────────────────────────────────────────────
    PRODUCT GRID
 ───────────────────────────────────────────── */
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+/* ── PRODUCT SCROLL TRACK ── */
+.product-scroll-track {
+  display: flex;
   gap: 2px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  cursor: grab;
+  padding: 0 56px 2px;
+  margin: 0 -56px;
+}
+.product-scroll-track::-webkit-scrollbar { display: none; }
+.product-scroll-track.is-grabbing { cursor: grabbing; user-select: none; }
+.product-scroll-track .product-card {
+  flex: 0 0 calc(25vw - 30px);
+  min-width: 260px;
+  max-width: 400px;
+  scroll-snap-align: start;
 }
 .product-card {
   background: var(--stone-mid);
@@ -663,6 +675,7 @@ button { cursor: pointer; background: none; border: none; color: inherit; font-f
   justify-content: space-between;
   margin-top: 14px;
 }
+.product-prices { display: flex; flex-direction: column; gap: 1px; }
 .product-price {
   font-family: var(--f-display);
   font-optical-sizing: auto;
@@ -671,6 +684,14 @@ button { cursor: pointer; background: none; border: none; color: inherit; font-f
   font-size: 18px;
   letter-spacing: 0.02em;
   color: var(--warm-white);
+}
+.product-price-old {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 200;
+  letter-spacing: 0.08em;
+  color: var(--ww45);
+  text-decoration: line-through;
 }
 .product-cta {
   font-family: var(--f-body);
@@ -1403,7 +1424,7 @@ button { cursor: pointer; background: none; border: none; color: inherit; font-f
    RESPONSIVE
 ───────────────────────────────────────────── */
 @media (max-width: 1100px) {
-  .product-grid { grid-template-columns: repeat(3, 1fr); }
+  .product-scroll-track .product-card { flex: 0 0 calc(33vw - 20px); }
   .footer-top { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 900px) {
@@ -1430,7 +1451,8 @@ button { cursor: pointer; background: none; border: none; color: inherit; font-f
   .hamburger { display: flex; }
 }
 @media (max-width: 640px) {
-  .product-grid { grid-template-columns: repeat(2, 1fr); }
+  .product-scroll-track { padding: 0 32px 2px; margin: 0 -32px; }
+  .product-scroll-track .product-card { flex: 0 0 calc(80vw); }
   .hero-headline { font-size: clamp(44px, 11vw, 72px); }
   .hero-ctas { flex-direction: column; }
   .btn-primary, .btn-ghost { width: 100%; text-align: center; padding: 16px 24px; }
@@ -1735,10 +1757,7 @@ body.has-cursor * { cursor: none !important; }
 ══════════════════════════════════════ -->
 <section class="hero" id="hero">
   <div class="hero-video-wrap" id="heroVideoWrap">
-    <video autoplay muted loop playsinline id="heroVideo">
-      <source src="TIENDA%20LUMGRAV%20HERO%20ENTRADA.mp4" type="video/mp4">
-    </video>
-    <img src="Imagen%20estatica%20del%20movil.png" alt="LumbGrav — Iluminación Arquitectónica" class="hero-fallback" id="heroFallback">
+    <img src="ChatGPT%20Image%2023%20may%202026%2C%2017_24_31%20(3).png" alt="LumbGrav — Iluminación Arquitectónica" id="heroImg">
   </div>
   <div class="hero-overlay"></div>
 
@@ -1923,11 +1942,14 @@ body.has-cursor * { cursor: none !important; }
         </div>
       </div>
       <div class="bestseller-price-row">
-        <span class="bestseller-price">389,90 €</span>
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          <span class="bestseller-price">249 €</span>
+          <del style="font-family:var(--f-mono);font-size:11px;font-weight:200;color:var(--ww45);letter-spacing:0.08em;">389,90 €</del>
+        </div>
         <span class="bestseller-shipping">Envío gratuito</span>
       </div>
       <div class="bestseller-actions">
-        <button class="btn-buy" onclick="addToCart('Onda Aurea','389,90 €','producto%203.png')">Añadir al carrito</button>
+        <button class="btn-buy" onclick="addToCart('Onda Aurea','249 €','producto%203.png')">Añadir al carrito</button>
         <div class="bestseller-meta">
           <span class="meta-item">Entrega 7–14 días hábiles</span>
           <span class="meta-item">Devolución 14 días</span>
@@ -1975,13 +1997,12 @@ body.has-cursor * { cursor: none !important; }
       <button onclick="filterProducts('todos')" class="filter-btn active" data-filter="todos">Todos</button>
       <button onclick="filterProducts('aplique')" class="filter-btn" data-filter="aplique">Apliques</button>
       <button onclick="filterProducts('colgante')" class="filter-btn" data-filter="colgante">Colgantes</button>
-      <button onclick="filterProducts('techo')" class="filter-btn" data-filter="techo">Techo</button>
     </div>
   </div>
 
-  <div class="product-grid">
+  <div class="product-scroll-track" id="productScrollTrack">
 
-    <!-- Producto 1 -->
+    <!-- Arco Nobile -->
     <div class="product-card reveal" data-type="aplique">
       <div class="product-image-wrap">
         <img class="img-packshot" src="Producto%201.png" alt="Arco Nobile" loading="lazy">
@@ -1992,13 +2013,16 @@ body.has-cursor * { cursor: none !important; }
         <h3 class="product-name">Arco Nobile</h3>
         <p class="product-desc">Una pieza arquitectónica pensada para salones, pasillos y zonas de lectura donde la luz no solo ilumina: define el ambiente.</p>
         <div class="product-footer">
-          <span class="product-price">129,90 €</span>
+          <div class="product-prices">
+            <span class="product-price">129,90 €</span>
+            <span class="product-price-old">179,90 €</span>
+          </div>
           <a class="product-cta" href="https://lumbgrav.com/products/arco-nobile" target="_blank">Reserva tu pieza</a>
         </div>
       </div>
     </div>
 
-    <!-- Producto 2 -->
+    <!-- Linea Vértice -->
     <div class="product-card reveal reveal-delay-1" data-type="aplique">
       <div class="product-image-wrap">
         <img class="img-packshot" src="producto%202.png" alt="Linea Vértice" loading="lazy">
@@ -2009,13 +2033,16 @@ body.has-cursor * { cursor: none !important; }
         <h3 class="product-name">Linea Vértice</h3>
         <p class="product-desc">Limpia, precisa y silenciosa. La luz acompaña la arquitectura sin robar protagonismo. Presencia de orden sobre la pared.</p>
         <div class="product-footer">
-          <span class="product-price">149,90 €</span>
+          <div class="product-prices">
+            <span class="product-price">129,90 €</span>
+            <span class="product-price-old">179,90 €</span>
+          </div>
           <a class="product-cta" href="https://lumbgrav.com/products/linea-vertice" target="_blank">Reserva tu pieza</a>
         </div>
       </div>
     </div>
 
-    <!-- Producto 3 -->
+    <!-- Onda Aurea -->
     <div class="product-card reveal reveal-delay-2" data-type="colgante">
       <div class="product-image-wrap">
         <img class="img-packshot" src="producto%203.png" alt="Onda Aurea" loading="lazy">
@@ -2026,133 +2053,17 @@ body.has-cursor * { cursor: none !important; }
         <h3 class="product-name">Onda Aurea</h3>
         <p class="product-desc">Trazo fluido, luz cálida integrada. Movimiento visual sin ruido. Presencia escultórica sobre la mesa del comedor.</p>
         <div class="product-footer">
-          <span class="product-price">389,90 €</span>
+          <div class="product-prices">
+            <span class="product-price">249 €</span>
+            <span class="product-price-old">389,90 €</span>
+          </div>
           <a class="product-cta" href="https://lumbgrav.com/products/onda-aurea" target="_blank">Reserva tu pieza</a>
         </div>
       </div>
     </div>
 
-    <!-- Producto 4 -->
-    <div class="product-card reveal reveal-delay-3" data-type="colgante">
-      <div class="product-image-wrap">
-        <img class="img-packshot" src="producto%204.png" alt="Punto Silex" loading="lazy">
-        <img class="img-lifestyle" src="producto4.png" alt="Punto Silex en espacio" loading="lazy">
-      </div>
-      <div class="product-info">
-        <span class="product-cat">Colgante lineal</span>
-        <h3 class="product-name">Punto Silex</h3>
-        <p class="product-desc">Luz puntual cálida, diseño vertical. Discreta y precisa. Aporta calma sin ocupar espacio visual.</p>
-        <div class="product-footer">
-          <span class="product-price">119,90 €</span>
-          <a class="product-cta" href="https://lumbgrav.com/products/punto-silex" target="_blank">Reserva tu pieza</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Producto 5 -->
-    <div class="product-card reveal" data-type="aplique">
-      <div class="product-image-wrap">
-        <img class="img-packshot" src="producto%205.png" alt="Curva Sombra" loading="lazy">
-        <img class="img-lifestyle" src="producto5.png" alt="Curva Sombra en espacio" loading="lazy">
-      </div>
-      <div class="product-info">
-        <span class="product-cat">Aplique de pared</span>
-        <h3 class="product-name">Curva Sombra</h3>
-        <p class="product-desc">Trazo orgánico, luz cálida indirecta. Para paredes que necesitan profundidad, carácter y presencia contenida.</p>
-        <div class="product-footer">
-          <span class="product-price">119,90 €</span>
-          <a class="product-cta" href="https://lumbgrav.com/products/curva-sombra" target="_blank">Reserva tu pieza</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Producto 6 -->
-    <div class="product-card reveal reveal-delay-1" data-type="colgante">
-      <div class="product-image-wrap">
-        <img class="img-packshot" src="producto%206.png" alt="Velo Nera" loading="lazy">
-        <img class="img-lifestyle" src="producto6.png" alt="Velo Nera en espacio" loading="lazy">
-      </div>
-      <div class="product-info">
-        <span class="product-cat">Lámpara colgante</span>
-        <h3 class="product-name">Velo Nera</h3>
-        <p class="product-desc">Cuerpo ondulado translúcido, línea negra central. Convierte la luz en movimiento. Magnética sin romper el equilibrio.</p>
-        <div class="product-footer">
-          <span class="product-price">349,90 €</span>
-          <a class="product-cta" href="https://lumbgrav.com/products/velo-nera" target="_blank">Reserva tu pieza</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Producto 7 -->
-    <div class="product-card reveal reveal-delay-2" data-type="techo">
-      <div class="product-image-wrap">
-        <img class="img-packshot" src="producto%207.png" alt="Halo Pleno" loading="lazy">
-        <img class="img-lifestyle" src="producto7.png" alt="Halo Pleno en espacio" loading="lazy">
-      </div>
-      <div class="product-info">
-        <span class="product-cat">Lámpara de techo</span>
-        <h3 class="product-name">Halo Pleno</h3>
-        <p class="product-desc">Plafón circular LED con luz perimetral suave. Diseño limpio. Iluminación que se siente amplia, silenciosa y perfectamente integrada.</p>
-        <div class="product-footer">
-          <span class="product-price">109,90 €</span>
-          <a class="product-cta" href="https://lumbgrav.com/products/halo-pleno" target="_blank">Reserva tu pieza</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Producto 8 -->
-    <div class="product-card reveal reveal-delay-3" data-type="colgante">
-      <div class="product-image-wrap">
-        <img class="img-packshot" src="producto%208.png" alt="Orbita Aurea" loading="lazy">
-        <img class="img-lifestyle" src="producto8.png" alt="Orbita Aurea en espacio" loading="lazy">
-      </div>
-      <div class="product-info">
-        <span class="product-cat">Lámpara colgante</span>
-        <h3 class="product-name">Orbita Aurea</h3>
-        <p class="product-desc">Estructura circular dorada. La luz funciona como pieza central. Forma continua: movimiento, elegancia y presencia.</p>
-        <div class="product-footer">
-          <span class="product-price">329,90 €</span>
-          <a class="product-cta" href="https://lumbgrav.com/products/orbita-aurea" target="_blank">Reserva tu pieza</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Producto 9 -->
-    <div class="product-card reveal" data-type="colgante">
-      <div class="product-image-wrap">
-        <img class="img-packshot" src="producto%209.png" alt="Halo Doppio" loading="lazy">
-        <img class="img-lifestyle" src="producto9.png" alt="Halo Doppio en espacio" loading="lazy">
-      </div>
-      <div class="product-info">
-        <span class="product-cat">Lámpara colgante</span>
-        <h3 class="product-name">Halo Doppio</h3>
-        <p class="product-desc">Doble anillo suspendido, luz cálida. Pensada para dormitorios premium donde la iluminación acompaña con equilibrio a ambos lados de la cama.</p>
-        <div class="product-footer">
-          <span class="product-price">139,90 €</span>
-          <a class="product-cta" href="https://lumbgrav.com/products/halo-doppio" target="_blank">Reserva tu pieza</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Producto 10 -->
-    <div class="product-card reveal reveal-delay-1" data-type="colgante">
-      <div class="product-image-wrap">
-        <img class="img-packshot" src="producto%2010.png" alt="Luna Astrale" loading="lazy">
-        <img class="img-lifestyle" src="producto10.png" alt="Luna Astrale en espacio" loading="lazy">
-      </div>
-      <div class="product-info">
-        <span class="product-cat">Lámpara colgante</span>
-        <h3 class="product-name">Luna Astrale</h3>
-        <p class="product-desc">Composición orbital, efecto cálido ambiental. Para espacios que buscan una iluminación más sensorial. El techo como parte del diseño.</p>
-        <div class="product-footer">
-          <span class="product-price">219,90 €</span>
-          <a class="product-cta" href="https://lumbgrav.com/products/luna-astrale" target="_blank">Reserva tu pieza</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Producto 11 -->
-    <div class="product-card reveal reveal-delay-2" data-type="aplique">
+    <!-- Taglio Sombra -->
+    <div class="product-card reveal reveal-delay-3" data-type="aplique">
       <div class="product-image-wrap">
         <img class="img-packshot" src="producto%2011.png" alt="Taglio Sombra" loading="lazy">
         <img class="img-lifestyle" src="producto11.png" alt="Taglio Sombra en espacio" loading="lazy">
@@ -2162,7 +2073,10 @@ body.has-cursor * { cursor: none !important; }
         <h3 class="product-name">Taglio Sombra</h3>
         <p class="product-desc">Corte vertical, luz indirecta. Limpia y silenciosa. La pared adquiere profundidad, orden y una iluminación cálida sin exceso.</p>
         <div class="product-footer">
-          <span class="product-price">179,90 €</span>
+          <div class="product-prices">
+            <span class="product-price">99,90 €</span>
+            <span class="product-price-old">149,90 €</span>
+          </div>
           <a class="product-cta" href="https://lumbgrav.com/products/taglio-sombra" target="_blank">Reserva tu pieza</a>
         </div>
       </div>
@@ -2594,6 +2508,27 @@ window.addEventListener('scroll', () => {
       });
     }
   }
+})();
+
+/* ── PRODUCT SCROLL — drag to scroll ── */
+(function() {
+  const track = document.getElementById('productScrollTrack');
+  if (!track) return;
+  let isDown = false, startX = 0, scrollLeft = 0;
+  track.addEventListener('mousedown', e => {
+    isDown = true;
+    track.classList.add('is-grabbing');
+    startX = e.pageX - track.offsetLeft;
+    scrollLeft = track.scrollLeft;
+  });
+  track.addEventListener('mouseleave', () => { isDown = false; track.classList.remove('is-grabbing'); });
+  track.addEventListener('mouseup', () => { isDown = false; track.classList.remove('is-grabbing'); });
+  track.addEventListener('mousemove', e => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - track.offsetLeft;
+    track.scrollLeft = scrollLeft - (x - startX) * 1.5;
+  });
 })();
 
 /* ── SCROLL REVEAL ── */
